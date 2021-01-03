@@ -1,16 +1,16 @@
 node{
    stage('SCM Checkout'){
-     git 'https://github.com/javahometech/my-app'
+     git 'https://github.com/vidyasagarkolusu/my-app-1'
    }
    stage('Compile-Package'){
       // Get maven home path
-      def mvnHome =  tool name: 'maven-3', type: 'maven'   
+      def mvnHome =  tool name: 'mymaven', type: 'maven'   
       sh "${mvnHome}/bin/mvn package"
    }
    
    stage('SonarQube Analysis') {
-        def mvnHome =  tool name: 'maven-3', type: 'maven'
-        withSonarQubeEnv('sonar-6') { 
+        def mvnHome =  tool name: 'mymaven', type: 'maven'
+        withSonarQubeEnv('sonar21') { 
           sh "${mvnHome}/bin/mvn sonar:sonar"
         }
     }
@@ -18,13 +18,7 @@ node{
     stage("Quality Gate Statuc Check"){
           timeout(time: 1, unit: 'HOURS') {
               def qg = waitForQualityGate()
-              if (qg.status != 'OK') {
-                   slackSend baseUrl: 'https://hooks.slack.com/services/',
-                   channel: '#jenkins-pipeline-demo',
-                   color: 'danger', 
-                   message: 'SonarQube Analysis Failed', 
-                   teamDomain: 'javahomecloud',
-                   tokenCredentialId: 'slack-demo'
+              if (qg.status != 'OK') 
                   error "Pipeline aborted due to quality gate failure: ${qg.status}"
               }
           }
@@ -35,13 +29,4 @@ node{
       Thanks
       Hari''', cc: '', from: '', replyTo: '', subject: 'Jenkins Job', to: 'hari.kammana@gmail.com'
    }
-   stage('Slack Notification'){
-       slackSend baseUrl: 'https://hooks.slack.com/services/',
-       channel: '#jenkins-pipeline-demo',
-       color: 'good', 
-       message: 'Welcome to Jenkins, Slack!', 
-       teamDomain: 'javahomecloud',
-       tokenCredentialId: 'slack-demo'
-   }
-
-}
+  
